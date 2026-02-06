@@ -27,9 +27,7 @@ test.describe("Sanity checks", () => {
 
     await expect(page).toHaveTitle("Chesskit Game Database");
     await expect(page.locator(".MuiDataGrid-root")).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "Add game" })
-    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Add game" })).toBeVisible();
   });
 
   test("PGN import and analysis", async ({ page }) => {
