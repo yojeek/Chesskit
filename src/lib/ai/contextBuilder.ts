@@ -10,6 +10,7 @@ export async function buildGameContext(
   game: Chess,
   apiKey: string,
   onProgress: (progress: number) => void,
+  onMoveAnalysis: (moveIndex: number, analysis: string | undefined) => void,
   signal: AbortSignal
 ): Promise<string> {
   const headers = game.getHeaders();
@@ -55,9 +56,11 @@ export async function buildGameContext(
 
     if (shouldSkip) {
       moveAnalyses.push(`Move ${moveLabel}${classLabel}`);
+      onMoveAnalysis(request.moveIndex, undefined);
     } else {
       const analysis = await service.analyzeMove(request, gameMetadata, apiKey);
       moveAnalyses.push(`Move ${moveLabel}${classLabel}: ${analysis}`);
+      onMoveAnalysis(request.moveIndex, analysis);
     }
 
     completed++;

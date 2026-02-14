@@ -29,6 +29,7 @@ export const savedEvalsAtom = atom<SavedEvals>({});
 
 export const aiContextBuildingProgressAtom = atom(0);
 export const aiGameContextAtom = atom<string | undefined>(undefined);
+export const aiMoveAnalysesAtom = atom<(string | undefined)[]>([]);
 export const aiChatMessagesAtom = atom<AIChatMessage[]>([]);
 export const aiChatLoadingAtom = atom(false);
 export const aiErrorAtom = atom<AIAnalysisError | undefined>(undefined);

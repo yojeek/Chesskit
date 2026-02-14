@@ -11,6 +11,7 @@ import {
   aiChatMessagesAtom,
   aiChatLoadingAtom,
   aiErrorAtom,
+  aiMoveAnalysesAtom,
 } from "../states";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { LoadingButton } from "@mui/lab";
@@ -37,6 +38,7 @@ export default function AIAnalyzeButton() {
   const setChatMessages = useSetAtom(aiChatMessagesAtom);
   const [chatLoading, setChatLoading] = useAtom(aiChatLoadingAtom);
   const setError = useSetAtom(aiErrorAtom);
+  const setMoveAnalyses = useSetAtom(aiMoveAnalysesAtom);
   const abortRef = useRef<AbortController | null>(null);
 
   const keyMap: Record<AIProvider, string> = {
@@ -57,6 +59,7 @@ export default function AIAnalyzeButton() {
     setError(undefined);
     setChatMessages([]);
     setAiGameContext(undefined);
+    setMoveAnalyses([]);
     setProgress(0);
 
     const abortController = new AbortController();
@@ -73,6 +76,12 @@ export default function AIAnalyzeButton() {
         game,
         apiKey,
         (p) => setProgress(p),
+        (moveIndex, analysis) =>
+          setMoveAnalyses((prev) => {
+            const next = [...prev];
+            next[moveIndex] = analysis;
+            return next;
+          }),
         abortController.signal
       );
       setAiGameContext(context);
