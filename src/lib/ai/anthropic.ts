@@ -8,7 +8,11 @@ import { MOVE_ANALYSIS_SYSTEM_PROMPT, buildMoveAnalysisPrompt } from "./prompt";
 
 export class AnthropicService implements AIService {
   private readonly baseUrl = "https://api.anthropic.com/v1/messages";
-  private readonly model = "claude-haiku-4-5-20251001";
+  private readonly model: string;
+
+  constructor(model?: string) {
+    this.model = model || "claude-haiku-4-5-20251001";
+  }
 
   async analyzeMove(
     request: AIMoveAnalysisRequest,

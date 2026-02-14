@@ -27,6 +27,12 @@ export class OpenAIService implements AIService {
     this.config = { ...OPENAI_DEFAULTS, ...config };
   }
 
+  private maxTokensParam(n: number): Record<string, number> {
+    return /^gpt-5/.test(this.config.model)
+      ? { max_completion_tokens: n }
+      : { max_tokens: n };
+  }
+
   async analyzeMove(
     request: AIMoveAnalysisRequest,
     gameMetadata: string,
@@ -47,7 +53,7 @@ export class OpenAIService implements AIService {
           { role: "user", content: prompt },
         ],
         temperature: 0.5,
-        max_tokens: 200,
+        ...this.maxTokensParam(200),
       }),
     }).catch(() => {
       throw {
@@ -88,7 +94,7 @@ export class OpenAIService implements AIService {
         model: this.config.model,
         messages: messages.map((m) => ({ role: m.role, content: m.content })),
         temperature: 0.7,
-        max_tokens: 1500,
+        ...this.maxTokensParam(1500),
       }),
       signal,
     }).catch(() => {
@@ -127,7 +133,7 @@ export class OpenAIService implements AIService {
           body: JSON.stringify({
             model: this.config.model,
             messages: [{ role: "user", content: "Hi" }],
-            max_tokens: 1,
+            ...this.maxTokensParam(1),
           }),
         });
         return response.ok;

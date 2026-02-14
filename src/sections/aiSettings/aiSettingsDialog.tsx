@@ -22,10 +22,31 @@ import {
   aiOpenAIKeyAtom,
   aiAnthropicKeyAtom,
   aiDeepSeekKeyAtom,
+  aiModelAtom,
 } from "../analysis/states";
 import { useState } from "react";
 import { createAIService } from "@/lib/ai";
 import { AIProvider } from "@/types/ai";
+
+const PROVIDER_MODELS: Record<AIProvider, { value: string; label: string }[]> =
+  {
+    [AIProvider.OpenAI]: [
+      { value: "gpt-4o-mini", label: "GPT-4o Mini" },
+      { value: "gpt-4o", label: "GPT-4o" },
+      { value: "gpt-4.1-nano", label: "GPT-4.1 Nano" },
+      { value: "gpt-4.1-mini", label: "GPT-4.1 Mini" },
+      { value: "gpt-4.1", label: "GPT-4.1" },
+      { value: "gpt-5", label: "GPT-5" },
+      { value: "gpt-5.1", label: "GPT-5.1" },
+      { value: "gpt-5.2", label: "GPT-5.2" },
+    ],
+    [AIProvider.Anthropic]: [
+      { value: "claude-haiku-4-5-20251001", label: "Claude 4.5 Haiku" },
+      { value: "claude-sonnet-4-5-20250929", label: "Claude 4.5 Sonnet" },
+      { value: "claude-opus-4-6", label: "Claude Opus" },
+    ],
+    [AIProvider.DeepSeek]: [{ value: "deepseek-chat", label: "DeepSeek Chat" }],
+  };
 
 interface Props {
   open: boolean;
@@ -64,6 +85,7 @@ const providerKeyInfo: Record<
 
 export default function AISettingsDialog({ open, onClose }: Props) {
   const [provider, setProvider] = useAtom(aiProviderAtom);
+  const [model, setModel] = useAtom(aiModelAtom);
   const [openAIKey, setOpenAIKey] = useAtom(aiOpenAIKeyAtom);
   const [anthropicKey, setAnthropicKey] = useAtom(aiAnthropicKeyAtom);
   const [deepSeekKey, setDeepSeekKey] = useAtom(aiDeepSeekKeyAtom);
@@ -82,8 +104,13 @@ export default function AISettingsDialog({ open, onClose }: Props) {
 
   const keyInfo = providerKeyInfo[provider];
 
+  const models = PROVIDER_MODELS[provider];
+  const selectedModel =
+    model && models.some((m) => m.value === model) ? model : models[0].value;
+
   const handleProviderChange = (newProvider: AIProvider) => {
     setProvider(newProvider);
+    setModel(PROVIDER_MODELS[newProvider][0].value);
     setValidationError(undefined);
     setValidationSuccess(false);
     const [key] = keys[newProvider];
@@ -159,6 +186,24 @@ export default function AISettingsDialog({ open, onClose }: Props) {
                 {Object.values(AIProvider).map((p) => (
                   <MenuItem key={p} value={p}>
                     {providerLabels[p]}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
+          <Grid size={12}>
+            <FormControl fullWidth>
+              <InputLabel id="ai-model-label">Model</InputLabel>
+              <Select
+                labelId="ai-model-label"
+                value={selectedModel}
+                onChange={(e) => setModel(e.target.value)}
+                input={<OutlinedInput label="Model" />}
+              >
+                {models.map((m) => (
+                  <MenuItem key={m.value} value={m.value}>
+                    {m.label}
                   </MenuItem>
                 ))}
               </Select>

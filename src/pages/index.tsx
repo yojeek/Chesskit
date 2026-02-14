@@ -184,11 +184,7 @@ export default function GameAnalysis() {
           id="tabContent1"
         />
 
-        <AIInsightsTab
-          role="tabpanel"
-          hidden={tab !== 3}
-          id="tabContent3"
-        />
+        <AIInsightsTab role="tabpanel" hidden={tab !== 3} id="tabContent3" />
 
         {isLgOrGreater && (
           <Box width="100%">

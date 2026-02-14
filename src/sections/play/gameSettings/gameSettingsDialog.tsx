@@ -33,6 +33,7 @@ import {
   aiOpenAIKeyAtom,
   aiAnthropicKeyAtom,
   aiDeepSeekKeyAtom,
+  aiModelAtom,
 } from "@/sections/analysis/states";
 import { useChessActions } from "@/hooks/useChessActions";
 import { logAnalyticsEvent } from "@/lib/firebase";
@@ -72,6 +73,7 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
   const [llmToggle, setLlmToggle] = useState(false);
 
   const aiProvider = useAtomValue(aiProviderAtom);
+  const aiModel = useAtomValue(aiModelAtom);
   const openAIKey = useAtomValue(aiOpenAIKeyAtom);
   const anthropicKey = useAtomValue(aiAnthropicKeyAtom);
   const deepSeekKey = useAtomValue(aiDeepSeekKeyAtom);
@@ -84,7 +86,9 @@ export default function GameSettingsDialog({ open, onClose }: Props) {
   const hasAiKey = keyMap[aiProvider].trim().length > 0;
 
   const opponentName = llmToggle
-    ? AI_PROVIDER_LABELS[aiProvider]
+    ? aiModel
+      ? `${AI_PROVIDER_LABELS[aiProvider]} (${aiModel})`
+      : AI_PROVIDER_LABELS[aiProvider]
     : ENGINE_LABELS[engineName].small;
 
   const handleGameStart = () => {

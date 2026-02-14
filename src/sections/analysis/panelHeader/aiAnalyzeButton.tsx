@@ -12,6 +12,7 @@ import {
   aiChatLoadingAtom,
   aiErrorAtom,
   aiMoveAnalysesAtom,
+  aiModelAtom,
 } from "../states";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { LoadingButton } from "@mui/lab";
@@ -30,6 +31,7 @@ export default function AIAnalyzeButton() {
   const gameEval = useAtomValue(gameEvalAtom);
   const game = useAtomValue(gameAtom);
   const provider = useAtomValue(aiProviderAtom);
+  const model = useAtomValue(aiModelAtom);
   const openAIKey = useAtomValue(aiOpenAIKeyAtom);
   const anthropicKey = useAtomValue(aiAnthropicKeyAtom);
   const deepSeekKey = useAtomValue(aiDeepSeekKeyAtom);
@@ -66,7 +68,7 @@ export default function AIAnalyzeButton() {
     abortRef.current = abortController;
 
     try {
-      const service = createAIService(provider);
+      const service = createAIService(provider, model || undefined);
 
       // Phase 1: Build game context
       setProgress(1);

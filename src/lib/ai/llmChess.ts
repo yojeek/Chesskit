@@ -36,7 +36,9 @@ export async function getLlmMove(
 
   try {
     const response = await service.chat(messages, apiKey, signal);
-    const match = response.match(/make_move\s+([a-h][1-8][a-h][1-8][qrbn]?)/i);
+    const match = response.match(
+      /(?:make_move\s+)?([a-h][1-8][a-h][1-8][qrbn]?)/i
+    );
 
     if (!match) return null;
 

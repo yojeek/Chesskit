@@ -13,6 +13,7 @@ import {
   aiOpenAIKeyAtom,
   aiAnthropicKeyAtom,
   aiDeepSeekKeyAtom,
+  aiModelAtom,
 } from "@/sections/analysis/states";
 import { useChessActions } from "@/hooks/useChessActions";
 import { useEffect, useMemo } from "react";
@@ -41,6 +42,7 @@ export default function BoardContainer() {
   const setIsGameInProgress = useSetAtom(isGameInProgressAtom);
 
   const aiProvider = useAtomValue(aiProviderAtom);
+  const aiModel = useAtomValue(aiModelAtom);
   const openAIKey = useAtomValue(aiOpenAIKeyAtom);
   const anthropicKey = useAtomValue(aiAnthropicKeyAtom);
   const deepSeekKey = useAtomValue(aiDeepSeekKeyAtom);
@@ -62,7 +64,7 @@ export default function BoardContainer() {
 
       if (isLlmOpponent) {
         const timePromise = sleep(1000);
-        const service = createAIService(aiProvider);
+        const service = createAIService(aiProvider, aiModel || undefined);
         const apiKey = keyMap[aiProvider];
         const move = await getLlmMove(gameFen, service, apiKey);
         await timePromise;

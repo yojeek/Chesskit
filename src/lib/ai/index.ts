@@ -3,16 +3,19 @@ import { AIService } from "./aiService";
 import { OpenAIService } from "./openai";
 import { AnthropicService } from "./anthropic";
 
-export function createAIService(provider: AIProvider): AIService {
+export function createAIService(
+  provider: AIProvider,
+  model?: string
+): AIService {
   switch (provider) {
     case AIProvider.OpenAI:
-      return new OpenAIService();
+      return new OpenAIService(model ? { model } : undefined);
     case AIProvider.Anthropic:
-      return new AnthropicService();
+      return new AnthropicService(model);
     case AIProvider.DeepSeek:
       return new OpenAIService({
         baseUrl: "https://api.deepseek.com/chat/completions",
-        model: "deepseek-chat",
+        model: model || "deepseek-chat",
         providerName: "DeepSeek",
         modelsUrl: undefined,
       });

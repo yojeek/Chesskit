@@ -20,6 +20,7 @@ import {
   aiOpenAIKeyAtom,
   aiAnthropicKeyAtom,
   aiDeepSeekKeyAtom,
+  aiModelAtom,
 } from "../../states";
 import { Icon } from "@iconify/react";
 import { useEffect, useRef, useState } from "react";
@@ -223,6 +224,7 @@ function ChatInput() {
   const setError = useSetAtom(aiErrorAtom);
   const aiGameContext = useAtomValue(aiGameContextAtom);
   const provider = useAtomValue(aiProviderAtom);
+  const model = useAtomValue(aiModelAtom);
   const openAIKey = useAtomValue(aiOpenAIKeyAtom);
   const anthropicKey = useAtomValue(aiAnthropicKeyAtom);
   const deepSeekKey = useAtomValue(aiDeepSeekKeyAtom);
@@ -262,7 +264,7 @@ function ChatInput() {
     setChatLoading(true);
 
     try {
-      const service = createAIService(provider);
+      const service = createAIService(provider, model || undefined);
       const response = await service.chat(allMessages, apiKey);
       setChatMessages([
         ...allMessages,

@@ -43,3 +43,4 @@ export const aiAnthropicKeyAtom = atomWithStorage<string>(
   ""
 );
 export const aiDeepSeekKeyAtom = atomWithStorage<string>("ai-deepseek-key", "");
+export const aiModelAtom = atomWithStorage<string>("ai-model", "");
