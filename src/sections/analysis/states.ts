@@ -1,6 +1,7 @@
 import { DEFAULT_ENGINE } from "@/constants";
 import { getRecommendedWorkersNb } from "@/lib/engine/worker";
 import { EngineName } from "@/types/enums";
+import { AIChatMessage, AIAnalysisError, AIProvider } from "@/types/ai";
 import { CurrentPosition, GameEval, SavedEvals } from "@/types/eval";
 import { Chess } from "chess.js";
 import { atom } from "jotai";
@@ -25,3 +26,19 @@ export const engineWorkersNbAtom = atomWithStorage(
 export const evaluationProgressAtom = atom(0);
 
 export const savedEvalsAtom = atom<SavedEvals>({});
+
+export const aiContextBuildingProgressAtom = atom(0);
+export const aiGameContextAtom = atom<string | undefined>(undefined);
+export const aiChatMessagesAtom = atom<AIChatMessage[]>([]);
+export const aiChatLoadingAtom = atom(false);
+export const aiErrorAtom = atom<AIAnalysisError | undefined>(undefined);
+export const aiProviderAtom = atomWithStorage<AIProvider>(
+  "ai-provider",
+  AIProvider.OpenAI
+);
+export const aiOpenAIKeyAtom = atomWithStorage<string>("ai-api-key", "");
+export const aiAnthropicKeyAtom = atomWithStorage<string>(
+  "ai-anthropic-key",
+  ""
+);
+export const aiDeepSeekKeyAtom = atomWithStorage<string>("ai-deepseek-key", "");

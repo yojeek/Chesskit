@@ -3,12 +3,17 @@ import { Grid2 as Grid, Typography } from "@mui/material";
 import GamePanel from "./gamePanel";
 import LoadGame from "./loadGame";
 import AnalyzeButton from "./analyzeButton";
+import AIAnalyzeButton from "./aiAnalyzeButton";
 import LinearProgressBar from "@/components/LinearProgressBar";
 import { useAtomValue } from "jotai";
-import { evaluationProgressAtom } from "../states";
+import {
+  evaluationProgressAtom,
+  aiContextBuildingProgressAtom,
+} from "../states";
 
 export default function PanelHeader() {
   const evaluationProgress = useAtomValue(evaluationProgressAtom);
+  const aiContextProgress = useAtomValue(aiContextBuildingProgressAtom);
 
   return (
     <Grid
@@ -43,7 +48,12 @@ export default function PanelHeader() {
         <GamePanel />
         <LoadGame />
         <AnalyzeButton />
+        <AIAnalyzeButton />
         <LinearProgressBar value={evaluationProgress} label="Analyzing..." />
+        <LinearProgressBar
+          value={aiContextProgress}
+          label="Building AI context..."
+        />
       </Grid>
     </Grid>
   );

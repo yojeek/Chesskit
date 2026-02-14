@@ -3,7 +3,12 @@ import PanelHeader from "@/sections/analysis/panelHeader";
 import PanelToolBar from "@/sections/analysis/panelToolbar";
 import AnalysisTab from "@/sections/analysis/panelBody/analysisTab";
 import ClassificationTab from "@/sections/analysis/panelBody/classificationTab";
-import { boardAtom, gameAtom, gameEvalAtom } from "@/sections/analysis/states";
+import {
+  boardAtom,
+  gameAtom,
+  gameEvalAtom,
+  aiGameContextAtom,
+} from "@/sections/analysis/states";
 import {
   Box,
   Divider,
@@ -17,7 +22,9 @@ import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { Icon } from "@iconify/react";
 import EngineSettingsButton from "@/sections/engineSettings/engineSettingsButton";
+import AISettingsButton from "@/sections/aiSettings/aiSettingsButton";
 import GraphTab from "@/sections/analysis/panelBody/graphTab";
+import AIInsightsTab from "@/sections/analysis/panelBody/aiInsightsTab";
 import { PageTitle } from "@/components/pageTitle";
 
 export default function GameAnalysis() {
@@ -26,6 +33,7 @@ export default function GameAnalysis() {
   const isLgOrGreater = useMediaQuery(theme.breakpoints.up("lg"));
 
   const gameEval = useAtomValue(gameEvalAtom);
+  const aiGameContext = useAtomValue(aiGameContextAtom);
   const game = useAtomValue(gameAtom);
   const board = useAtomValue(boardAtom);
 
@@ -34,7 +42,8 @@ export default function GameAnalysis() {
   useEffect(() => {
     if (tab === 1 && !showMovesTab) setTab(0);
     if (tab === 2 && !gameEval) setTab(0);
-  }, [showMovesTab, gameEval, tab]);
+    if (tab === 3 && !aiGameContext) setTab(0);
+  }, [showMovesTab, gameEval, aiGameContext, tab]);
 
   return (
     <Grid container gap={4} justifyContent="space-evenly" alignItems="start">
@@ -139,6 +148,20 @@ export default function GameAnalysis() {
                 }}
                 disableFocusRipple
               />
+
+              <Tab
+                label="AI Insights"
+                id="tab3"
+                icon={<Icon icon="mdi:brain" height={15} />}
+                iconPosition="start"
+                sx={{
+                  textTransform: "none",
+                  minHeight: 15,
+                  display: aiGameContext ? undefined : "none",
+                  padding: "5px 0em 12px",
+                }}
+                disableFocusRipple
+              />
             </Tabs>
           </Box>
         )}
@@ -161,6 +184,12 @@ export default function GameAnalysis() {
           id="tabContent1"
         />
 
+        <AIInsightsTab
+          role="tabpanel"
+          hidden={tab !== 3 && !isLgOrGreater}
+          id="tabContent3"
+        />
+
         {isLgOrGreater && (
           <Box width="100%">
             <Divider sx={{ marginX: "5%", marginBottom: 1.5 }} />
@@ -177,6 +206,7 @@ export default function GameAnalysis() {
       </Grid>
 
       <EngineSettingsButton />
+      <AISettingsButton />
     </Grid>
   );
 }
