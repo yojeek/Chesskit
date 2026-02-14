@@ -1,4 +1,4 @@
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import {
   engineEloAtom,
   gameAtom,
@@ -6,7 +6,14 @@ import {
   isGameInProgressAtom,
   gameDataAtom,
   enginePlayNameAtom,
+  isLlmOpponentAtom,
 } from "./states";
+import {
+  aiProviderAtom,
+  aiOpenAIKeyAtom,
+  aiAnthropicKeyAtom,
+  aiDeepSeekKeyAtom,
+} from "@/sections/analysis/states";
 import { useChessActions } from "@/hooks/useChessActions";
 import { useEffect, useMemo } from "react";
 import { useScreenSize } from "@/hooks/useScreenSize";
@@ -16,42 +23,69 @@ import Board from "@/components/board";
 import { useGameData } from "@/hooks/useGameData";
 import { usePlayersData } from "@/hooks/usePlayersData";
 import { sleep } from "@/lib/helpers";
+import { createAIService } from "@/lib/ai";
+import { getLlmMove } from "@/lib/ai/llmChess";
+import { AIProvider } from "@/types/ai";
 
 export default function BoardContainer() {
   const screenSize = useScreenSize();
+  const isLlmOpponent = useAtomValue(isLlmOpponentAtom);
   const engineName = useAtomValue(enginePlayNameAtom);
-  const engine = useEngine(engineName);
+  const engine = useEngine(isLlmOpponent ? undefined : engineName);
   const game = useAtomValue(gameAtom);
   const { white, black } = usePlayersData(gameAtom);
   const playerColor = useAtomValue(playerColorAtom);
   const { playMove } = useChessActions(gameAtom);
   const engineElo = useAtomValue(engineEloAtom);
   const isGameInProgress = useAtomValue(isGameInProgressAtom);
+  const setIsGameInProgress = useSetAtom(isGameInProgressAtom);
+
+  const aiProvider = useAtomValue(aiProviderAtom);
+  const openAIKey = useAtomValue(aiOpenAIKeyAtom);
+  const anthropicKey = useAtomValue(aiAnthropicKeyAtom);
+  const deepSeekKey = useAtomValue(aiDeepSeekKeyAtom);
+
+  const keyMap: Record<AIProvider, string> = {
+    [AIProvider.OpenAI]: openAIKey,
+    [AIProvider.Anthropic]: anthropicKey,
+    [AIProvider.DeepSeek]: deepSeekKey,
+  };
 
   const gameFen = game.fen();
   const isGameFinished = game.isGameOver();
 
   useEffect(() => {
-    const playEngineMove = async () => {
-      if (
-        !engine?.getIsReady() ||
-        game.turn() === playerColor ||
-        isGameFinished ||
-        !isGameInProgress
-      ) {
+    const playOpponentMove = async () => {
+      if (game.turn() === playerColor || isGameFinished || !isGameInProgress) {
         return;
       }
 
-      const timePromise = sleep(1000);
-      const move = await engine.getEngineNextMove(gameFen, engineElo);
-      await timePromise;
+      if (isLlmOpponent) {
+        const timePromise = sleep(1000);
+        const service = createAIService(aiProvider);
+        const apiKey = keyMap[aiProvider];
+        const move = await getLlmMove(gameFen, service, apiKey);
+        await timePromise;
 
-      if (move) playMove(uciMoveParams(move));
+        if (move) {
+          playMove(uciMoveParams(move));
+        } else {
+          setIsGameInProgress(false);
+        }
+      } else {
+        if (!engine?.getIsReady()) return;
+
+        const timePromise = sleep(1000);
+        const move = await engine.getEngineNextMove(gameFen, engineElo);
+        await timePromise;
+
+        if (move) playMove(uciMoveParams(move));
+      }
     };
-    playEngineMove();
+    playOpponentMove();
 
     return () => {
-      engine?.stopAllCurrentJobs();
+      if (!isLlmOpponent) engine?.stopAllCurrentJobs();
     };
   }, [gameFen, isGameInProgress]); // eslint-disable-line react-hooks/exhaustive-deps
 

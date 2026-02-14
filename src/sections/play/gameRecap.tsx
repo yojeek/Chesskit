@@ -1,5 +1,10 @@
 import { useAtomValue } from "jotai";
-import { gameAtom, isGameInProgressAtom, playerColorAtom } from "./states";
+import {
+  gameAtom,
+  isGameInProgressAtom,
+  isLlmOpponentAtom,
+  playerColorAtom,
+} from "./states";
 import { Button, Grid2 as Grid, Typography } from "@mui/material";
 import { Color } from "@/types/enums";
 import { setGameHeaders } from "@/lib/chess";
@@ -10,15 +15,18 @@ export default function GameRecap() {
   const game = useAtomValue(gameAtom);
   const playerColor = useAtomValue(playerColorAtom);
   const isGameInProgress = useAtomValue(isGameInProgressAtom);
+  const isLlmOpponent = useAtomValue(isLlmOpponentAtom);
   const { addGame } = useGameDatabase();
   const router = useRouter();
 
   if (isGameInProgress || !game.history().length) return null;
 
+  const opponentLabel = isLlmOpponent ? "LLM" : "Stockfish";
+
   const getResultLabel = () => {
     if (game.isCheckmate()) {
       const winnerColor = game.turn() === "w" ? Color.Black : Color.White;
-      const winnerLabel = winnerColor === playerColor ? "You" : "Stockfish";
+      const winnerLabel = winnerColor === playerColor ? "You" : opponentLabel;
       return `${winnerLabel} won by checkmate !`;
     }
     if (game.isInsufficientMaterial()) return "Draw by insufficient material";
@@ -26,13 +34,23 @@ export default function GameRecap() {
     if (game.isThreefoldRepetition()) return "Draw by threefold repetition";
     if (game.isDraw()) return "Draw by fifty-move rule";
 
+    if (isLlmOpponent && !game.isGameOver()) {
+      return "LLM resigned (invalid move)";
+    }
+
     return "You resigned";
   };
 
   const handleOpenGameAnalysis = async () => {
-    const gameToAnalysis = setGameHeaders(game, {
-      resigned: !game.isGameOver() ? playerColor : undefined,
-    });
+    const resigned = !game.isGameOver()
+      ? isLlmOpponent
+        ? playerColor === Color.White
+          ? Color.Black
+          : Color.White
+        : playerColor
+      : undefined;
+
+    const gameToAnalysis = setGameHeaders(game, { resigned });
     const gameId = await addGame(gameToAnalysis);
 
     router.push({ pathname: "/", query: { gameId } });

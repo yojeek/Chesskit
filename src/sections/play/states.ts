@@ -10,3 +10,4 @@ export const playerColorAtom = atom<Color>(Color.White);
 export const enginePlayNameAtom = atom<EngineName>(DEFAULT_ENGINE);
 export const engineEloAtom = atom(1320);
 export const isGameInProgressAtom = atom(false);
+export const isLlmOpponentAtom = atom(false);
